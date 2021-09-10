@@ -15,11 +15,9 @@ Wo\'zniak, Tomasz (2018) Granger-Causal Analysis of GARCH Models: a Bayesian App
 
 The project contains the following files:
 
-- `BayesianECCCGARCH.pdf` a vignette presenting the model and R codes
+- [`BayesianECCCGARCH.pdf`](https://github.com/donotdespair/BayesianECCCGARCH/blob/master/BayesianECCCGARCH.pdf) a vignette presenting the model and R codes
 - `BayesianECCCGARCH.R` containing the utility functions
 - `BayesianECCCGARCH-example.R` presenting an application of the functions in a simple example
 - `priorConstant-M0-shrinkage.R` reproduction of the results from the paper for one of the models
 - `priorConstant-M1-shrinkage.R` reproduction of the results from the paper for another model
 - `dataECB.RData` data used in the paper
-
-$\textcopyright{}$ Tomasz Woźniak 2016 
