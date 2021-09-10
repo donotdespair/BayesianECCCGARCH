@@ -9,9 +9,9 @@ by Tomasz Woźniak
 
 To refer to the codes in publications, please, cite one of the following papers:
 
-Woźniak, Tomasz (2015) Testing Causality Between Two Vectors in Multivariate GARCH Models, *International Journal of Forecasting*, 31(3), pp. 876--894, DOI: [10.1016/j.ijforecast.2015.01.005](http://doi.org/10.1016/j.ijforecast.2015.01.005).
+> Woźniak, Tomasz (2015) Testing Causality Between Two Vectors in Multivariate GARCH Models, *International Journal of Forecasting*, 31(3), pp. 876--894, DOI: [10.1016/j.ijforecast.2015.01.005](http://doi.org/10.1016/j.ijforecast.2015.01.005).
 
-Wo\'zniak, Tomasz (2018) Granger-Causal Analysis of GARCH Models: a Bayesian Approach, *Econometric Reviews*, 37(4), pp. 325-346, DOI: [10.1080/07474938.2015.1092839](http://doi.org/10.1080/07474938.2015.1092839).
+> Wo\'zniak, Tomasz (2018) Granger-Causal Analysis of GARCH Models: a Bayesian Approach, *Econometric Reviews*, 37(4), pp. 325-346, DOI: [10.1080/07474938.2015.1092839](http://doi.org/10.1080/07474938.2015.1092839).
 
 The project contains the following files:
 
