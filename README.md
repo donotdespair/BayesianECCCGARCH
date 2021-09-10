@@ -7,7 +7,7 @@ by Tomasz Woźniak
 >
 > Keywords: R, Multivariate GARCH Models, Metropolis-Hastings Sampler, Marginal Data Density
 
-The codes are available under the GNU General Public License v3.0. To refer to the codes in publications, please, cite one of the following papers:
+To refer to the codes in publications, please, cite one of the following papers:
 
 Woźniak, Tomasz (2015) Testing Causality Between Two Vectors in Multivariate GARCH Models, *International Journal of Forecasting*, 31(3), pp. 876--894, DOI: [10.1016/j.ijforecast.2015.01.005](http://doi.org/10.1016/j.ijforecast.2015.01.005).
 
