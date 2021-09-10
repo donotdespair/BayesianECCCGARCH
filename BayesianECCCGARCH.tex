@@ -1,0 +1,392 @@
+\documentclass[final,3p,authoryear]{elsarticle}
+
+
+%\usepackage{float}
+\usepackage[none]{hyphenat}
+\usepackage{amsmath,amsfonts,amssymb,amsthm,pxfonts}
+\usepackage{natbib}
+\usepackage[bookmarks, pdftitle={Testing Causality Between Two Vectors in Multivariate GARCH Models},pdfauthor={Tomasz Wozniak}]{hyperref}
+%\hypersetup{linkcolor=blue,citecolor=blue,filecolor=black,urlcolor=blue} 
+\usepackage{graphicx,color}
+%\usepackage{multirow}
+\usepackage{booktabs}
+%\usepackage{rotating}
+\usepackage{geometry}
+%\usepackage{longtable,lscape,ltcaption} 
+%\usepackage[margin=2cm]{geometry}
+%\usepackage{setspace}
+%\singlespacing
+%\onehalfspacing
+%\doublespacing
+
+%___________________________________________________________________________________________________
+%
+% Document begins
+%___________________________________________________________________________________________________
+
+\begin{document} 
+%\journal{Something}
+\biboptions{longnamesfirst,semicolon}
+%\theoremstyle{remark}
+\newtheorem{thm}{Theorem}
+\newtheorem{cl}{Corollary}
+\newtheorem{lm}{Lemma}
+\newdefinition{df}{Definition}
+\newdefinition{ex}{Example}
+\newdefinition{as}{Assumption}
+\newdefinition{pr}{Propertty}
+\newdefinition{rs}{Restriction}
+\newproof{pf}{Proof}
+
+\begin{frontmatter}
+
+\title{Bayesian Estimation and Inference for the ECCC-GARCH Model in R}% \tnoteref{t2}}
+%\tnotetext[t2]{This paper was presented at the BMRC-QASS Conference in London in May 2010, FindEcon Conference in \L\'od\'z in May 2010 under the title \emph{Bayesian testing of second-order causality} and under the current title at the Multivariate Time Series Modelling and Forecasting Workshop in Melbourne in February 2013. The author thanks Helmut L\"utkepohl, Jacek Osiewalski, Helmut Herwartz, Massimiliano Marcellino, Vance Martin and Timo Ter\"asvirta as well as the participants of the workshops for their useful comments and remarks on the study. Also, the author thanks Micha\l{}  Markun and colleagues from the EUI Time Series Econometrics Working Group for multiple discussions and suggestions.}
+
+\author[um]{Tomasz Wo\'zniak}%\tnoteref{t1}}
+%\ead{tomasz.wozniak@unimelb.edu.au}
+%\ead[url]{http://bit.ly/twozniak}
+
+\address[um]{
+Department of Economics, University of Melbourne, 111 Barry Street, Carlton 3053, Australia\\[1ex]
+email: \href{mailto:tomasz.wozniak@unimelb.edu.au}{tomasz.wozniak@unimelb.edu.au}\\[4ex]
+\textcopyright{} 2016 by Tomasz Wo\'zniak
+}
+
+%\tnotetext[t1]{,  website: \url{http://bit.ly/tomaszwozniak}\\ \linebreak
+%\vspace{0.3cm}}
+
+\begin{abstract}
+A random walk Metropolis-Hastings algorithm for the Bayesian estimation of the Vector Autoregressive models with the conditional volatility process being the Extended Constant Conditional Correlation GARCH(1,1) model is provided, as well as an appropriate estimator for the marginal data density. The codes are available under the GNU General Public License v3.0. To refer to the codes in publications, please, cite one of the following papers:
+
+\bigskip\noindent Wo\'zniak, Tomasz (2015) Testing Causality Between Two Vectors in Multivariate GARCH Models, \emph{International Journal of Forecasting}, 31(3), pp. 876--894.
+
+\bigskip\noindent Wo\'zniak, Tomasz (2018) Granger-Causal Analysis of GARCH Models: a Bayesian Approach, \emph{Econometric Reviews}, 37(4), pp. 325-346.
+
+\end{abstract}
+
+\begin{keyword}
+R \sep Multivariate GARCH Models \sep Metropolis-Hastings Sampler \sep Marginal Data Density
+\end{keyword}
+
+\end{frontmatter}
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+% \section{Methodological background}\label{sec:model}
+ 
+\section{The VAR-ECCC-GARCH Model} 
+
+\paragraph{Model and likelihood function} The model under consideration is the Vector Autoregressive process of \cite{Sims1980} for the conditional mean, and the Extended Constant Conditional Correlation Generalized Autoregressive Conditional Heteroskedasticity process of \cite{Jeantheau1998} for conditional variances. The model presented in this manuscript was used in \cite{Wozniak2012,Wozniak2011jm}. The exposition in this note is based on \cite{Wozniak2012}.  The conditional mean process models linear relations between current and lagged observations of the considered variables:
+\begin{subequations}\label{eq:mean}
+\begin{equation}\label{eq:var}
+y_t = \alpha_0 + \alpha_1y_{t-1} + \dots + \alpha_py_{t-p} + \epsilon_t 
+\end{equation} 
+\begin{equation}\label{eq:epsilon2}
+\epsilon_t = D_t r_t
+\end{equation} 
+\begin{equation}\label{eq:t}
+r_t \sim i.i.St^{N}\left( \mathbf{0}, \mathbf{C}, \nu \right),
+\end{equation} 
+\end{subequations}
+for all $t=1,\dots,T$, where $y_t$ is a $N\times 1$ vector of data at time $t$, $\alpha_1$ is a $N\times1$ vector of constant terms, $\alpha_1,\dots,\alpha_p$ are $N\times N$ matrices of autoregressive parameters, $\epsilon_t$ and $r_t$ are $N\times 1$ vectors of residuals and standardized residuals respectively, $D_t = diag(\sqrt{h_{1t}},\dots, \sqrt{h_{Nt}})$ is a $N\times N$ diagonal matrix with conditional standard deviations on the diagonal. The standardized residuals follow a $N$-variate standardized Student $t$ distribution with a vector of zeros as a location parameter, a matrix $\mathbf{C}$ as a scale matrix, and $\nu>2$ degrees of freedom.
+
+The conditional covariance matrix of the residual term $\epsilon_t$ is decomposed into:
+\begin{equation}\label{eq:covariance}
+H_t = D_t \mathbf{C} D_t \quad \forall t=1,\dots,T. 
+\end{equation} 
+For the matrix $H_t$ to be a positive definite covariance matrix, $h_t$ must be positive for all $t$ and $\mathbf{C}$ positive definite \citep[see][]{Bollerslev1990}. A $N\times 1$ vector of current conditional variances is modeled with lagged squared residuals, $\epsilon_{t-1}^{(2)} = (\epsilon_{1t-1}^{2}, \dots, \epsilon_{Nt-1}^{2})^{\prime}$, and lagged conditional variances, $h_{t-1}$:
+\begin{equation}\label{eq:garch}
+h_t = \omega + A\epsilon_{t-1}^{(2)} + Bh_{t-1},
+\end{equation} 
+for all $t=1,\dots,T$, where $\omega >0$ is a $N\times 1$ vector of positive constants, $A$ and $B$ are the coefficient matrices of ARCH and GARCH effects respectively. Matrices $A$ and $B$ are such that all their elements are non-negative, $A,B\geq0$, and that the GARCH process is covariance stationary, i.e. the largest eigenvalue of $A+B$ is less than 1. The vector of conditional variances is then given by $E[\epsilon_{t}^{(2)}|I(t-1)] = \frac{\nu}{\nu-2}h_{t}$, where $I(t-1)$ is the information set available at time $t-1$.
+ 
+The likelihood function has the following form:
+\begin{equation}\label{eq:likelihood}
+p(\mathbf{y}|\theta) = \prod_{t=1}^{T} \frac{\Gamma\left(\frac{\nu+N}{2} \right)}{\Gamma\left(\frac{\nu}{2} \right)}\left( (\nu -2) \pi\right)^{-\frac{N}{2}} |H_t|^{-\frac{1}{2}}\left( 1 + \frac{1}{\nu -2} \epsilon_{t}^{\prime}H_{t}^{-1}\epsilon_{t} \right)^{-\frac{\nu+N}{2}}.
+\end{equation} 
+This model has its origins in the Constant Conditional Correlation GARCH (CCC-GARCH) model proposed by \citet{Bollerslev1990}. That model consisted of $N$ univariate GARCH equations describing the vector of conditional variances, $h_t$. The CCC-GARCH model is equivalent to equation (\ref{eq:garch}) with diagonal matrices $A(L)$ and $B(L)$. Its extended version, with non-diagonal matrices $A(L)$ and $B(L)$, was analyzed by \citet{Jeantheau1998}. \cite{He2004} call this model the Extended CCC-GARCH (ECCC-GARCH). 
+ 
+ \paragraph{Prior distribution}
+ For the unrestricted VAR-GARCH model, the following prior specification is assumed. All of the parameters of the VAR process are \emph{a priori} normally distributed with a vector of zeros as the mean and a diagonal covariance matrix with hyper-parameter $\lambda_1$ on the diagonal. A similar prior distribution is assumed for the constant terms of the GARCH process, with the difference that for $\omega$ the distribution is truncated to the constrained parameter space. The parameters modeling the dynamic part of the GARCH process, collected in matrices $A$ and $B$ follow a truncated normally-distributed prior with zero mean and diagonal covariance matrix with hyper-parameter $\lambda_2$ on the diagonal. The truncation of the distribution to the parameter space imposes the non-negativity and stationarity conditions. Each of the correlation parameters of the correlation matrix $\mathbf{C}$ follows a marginal uniform distribution on the interval $[-1,1]$ \citep[see][for the implications of assuming such a marginal prior distribution for the joint distribution of the correlation matrix]{Barnard2000}. Finally the prior distribution proposed by \cite{Deschamps2006} is assumed for the degrees of freedom parameter. To summarize, the prior specification for the considered model has a detailed form of:
+\begin{equation}\label{eq:prior}
+p(\theta) = p(\alpha)p(\omega,A,B)p(\nu)\prod_{i=1}^{N(N-1)/2}p(\rho_i),
+\end{equation}
+where each of the prior distributions is assumed:
+\begin{align*}
+\alpha &\sim \mathcal{N}^{N+pN^2}\left( \mathbf{0}, \lambda_1\cdot I_{N+pN^2} \right)\\
+\omega &\sim \mathcal{N}^{N}\left( \mathbf{0}, \lambda_1\cdot I_{N} \right) \mathcal{I}(\omega>0)\\
+\left(\text{vec}(A)^{\prime},\text{vec}(B)^{\prime}\right)^{\prime} &\sim \mathcal{N}^{N+N^2(q+r)}\left( \mathbf{0}, \lambda_2\cdot I_{N+N^2(q+r)} \right) \mathcal{I}\left(A,B\geq 0\land \text{ eigenvalue}(A+B)<1\right)\\
+\nu &\sim .04 \exp\left[-.04(\nu - 2) \right]\mathcal{I}(\nu\geq 2)\\
+\rho_i &\sim \mathcal{U}(-1, 1) \quad \text{ for } i=1,\dots,N(N-1)/2,
+\end{align*}
+where $\alpha = (\alpha_{0}^{\prime}, \text{vec}(\alpha_1)^{\prime}, \dots, \text{vec}(\alpha_p)^{\prime})^{\prime}$ stacks all the parameters of the VAR process in a vector of size $N+pN^2$. $I_n$ is an identity matrix of order $n$. $\mathcal{I}(.)$ is an indicator function taking value equal to 1 if the condition in the brackets holds and 0 otherwise. $\rho_i$ is the $i$th element of a vector stacking all the elements below the main diagonal of the correlation matrix, $\rho = (\text{vecl}(\mathbf{C}))$. The values of hyper-parameters, $(\lambda_1,\lambda_2)$, are to be specified by the investigator. Finally, the $K$-dimensional vector collecting all of the parameters of the model, where $K=N(2.5+N(p + 2.5))$, is as follows:
+\begin{equation}\label{eq:theta}
+\theta = \left( \alpha^{\prime}, \omega^{\prime},\text{vec}(A)^{\prime}, \text{vec}(B)^{\prime}, \rho^{\prime}, \nu \right)^{\prime}.
+\end{equation}
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+\section{Bayesian estimation and inference}\label{sec:estimation}
+
+\noindent The posterior distribution of the parameters of the model is proportional to the product of the likelihood function (\ref{eq:likelihood}) and the prior distribution of the parameters:
+\begin{equation}\label{eq:posterior}
+p(\theta|\mathbf{y}) \propto p(\mathbf{y}|\theta)p(\theta).
+\end{equation}
+ 
+\paragraph{Estimation of models} The form of the posterior distribution (\ref{eq:posterior}) for all of the parameters, $\theta$, for the GARCH models, even with the prior distribution set to a proper distribution function, as in (\ref{eq:prior}), is not in a form of  any known distribution function. Moreover, none of the full conditional densities for any sub-group of the parameter vector has a form corresponding to a standard distribution. Still, the posterior distribution, although it is known only up to a normalizing constant, exists; this is ensured by the bounded likelihood function and the proper prior distribution. Therefore, the posterior distribution may be simulated with a Monte Carlo Markov Chain (MCMC) algorithm. Due to the above mentioned problems with the form of the posterior and full conditional densities, a proper algorithm to sample the posterior distribution (\ref{eq:posterior}) is, e.g.\ the Metropolis-Hastings algorithm \citep[see][and references therein]{Chib1995}. The algorithm was adapted for multivariate GARCH models by \cite{Vrontos2003}.
+
+Suppose the starting point of the Markov Chain is some value $\theta_0 \in \Theta$. Let $q(\theta^{(s)}, \theta^{\prime}|\mathbf{y}, \mathcal{M}_i)$ denote the proposal density (candidate-generating density) for the transition from the current state of the Markov chain $\theta^{(s)}$ to a candidate draw $\theta^{\prime}$. The candidate density for model $\mathcal{M}_i$ depends on the data $\mathbf{y}$. In this study, a multivariate Student $t$ distribution is used, with the location vector set to the current state of the Markov chain, $\theta^{(s)}$, the scale matrix $c\Omega_q$ and the degrees of freedom parameter set to five. The matrix, $\Omega_q$, should be determined by preliminary runs of the MCMC algorithm, such that it is close to the covariance matrix of the posterior distribution, whereas $c$ is a scalar that is used to achieve the requested acceptance rate in the Markov chain. Such a candidate-generating density should enable the algorithm to draw efficiently from the posterior density. A new candidate $\theta^{\prime}$ is accepted with the probability: 
+\begin{equation}\label{eq:alpha}
+\alpha(\theta^{(s)}, \theta^{\prime}|\mathbf{y},\mathcal{M}_i) = \min \left[ 1, \frac{p(\mathbf{y}|\theta^{\prime}, \mathcal{M}_i)p(\theta^{\prime}|\mathcal{M}_i)}{p(\mathbf{y}|\theta^{(s)}, \mathcal{M}_i)p(\theta^{(s)}|\mathcal{M}_i)} \right],
+\end{equation}
+and if it is rejected, then $\theta^{(s+1)} = \theta^{(s)}$. The sample drawn from the posterior distribution with the Metropolis-Hastings algorithm, $\{ \theta^{(s)}\}_{s=1}^{S}$, should be diagnosed to ensure that it is a good sample from the stationary posterior distribution.
+
+\section{Estimation of marginal data densities} Having estimated the models, the marginal densities of the data (MDD) may be computed using one of the available methods. Since the estimation of the models is performed using the Metropolis-Hastings algorithm, a suitable estimator of the MDD is the one introduced by \cite{Chib2001}. This estimator of the MDD is computed using the so called marginal likelihood identity:
+\begin{equation}\label{eq:mli}
+\log p\left( \mathbf{y}|\mathcal{M}_i \right) = \log p\left( \mathbf{y}|\theta^{*}, \mathcal{M}_i \right) + \log p\left( \theta^{*}| \mathcal{M}_i \right) + \log p\left( \theta^{*}|\mathbf{y}, \mathcal{M}_i \right),
+\end{equation} 
+where $\theta^{*}$ is a point in the parameter space for which the posterior density has high value (posterior means are used in the supplied algorithms), and on the right hand side of the formula above there are the ordinates of the likelihood function, the prior density function and the posterior density function respectively evaluated at $\theta^{*}$. %Given our prior assumptions specified in equation (\ref{eq:prior}), where the parameter space of $\omega$, $A$ and $B$ is constrained, the computations of $\log p\left( \mathbf{y}|\mathcal{M}_i \right)$ require adjustments for a normalising constant that takes into account the constraints imposed on $\Theta$. The constraints imposed on the parameter space of the parameters $\omega$, $A$ and $B$ are: $\omega>0$, $A,B\geq0$ and that the absolute value of the largest eigenvalue of matrix $A+B$ is less than one.
+The ordinate of the posterior distribution evaluated at $\theta^{*}$ is estimated by:
+\begin{equation}\label{eq:cjpo}
+\hat p\left(\theta^{*}|\mathbf{y},\mathcal{M}_i\right) = \frac{S^{-1} \sum_{s=1}^{S}\alpha(\theta^{(s)},\theta^{*}|\mathbf{y},\mathcal{M}_i)q(\theta^{(s)},\theta^{*}|\mathbf{y},\mathcal{M}_i)}{J^{-1}\sum_{j=1}^{J}\alpha(\theta^{*},\theta^{(j)}|\mathbf{y},\mathcal{M}_i)},
+\end{equation}
+where $\{\theta^{(j)}\}_{j=1}^{J}$ is a sample drawn from $q(\theta^{*},\theta^{'}|\mathbf{y},\mathcal{M}_i)$. %The adjustment of the estimator of the ordinate of the posterior distribution for the truncation consists of setting the probabilities of acceptance, $\alpha$, in the numerator and the denominator of equation (\ref{eq:cjpo}) to zeros for the draws for which the condition $\theta\in\Theta$ does not hold.
+%The ordinate of the constrained prior density function is computed by:
+%\begin{equation*} 
+%p\left( \theta^{*}| \mathcal{M}_i \right) = \frac{\phi\left( \theta^{*} \right)\mathcal{I}\left(\theta\in\Theta\right)}{p_{\Theta}},
+%\end{equation*} 
+%where $\phi$ is a probability density function of a normal distribution with appropriate moments, and $p_{\Theta}$ is a normalizing constant that is the probability of condition $\theta\in\Theta$ given measure $\phi$. Due to the fact that the conditions for the stationarity of the GARCH model are specified in terms of conditions on the eigenvalues of matrix $A+B$, $p_{\Theta}$ is approximated for each model by simulation techniques. In order to efficiently estimate the normalising constant, $p_{\Theta}$, firstly, a probability that $\omega_i>0$, $0\leq A_{ij}\leq 1.8$ and $0\leq B_{ij}\leq 1.8$, for $i,j =1,\dots, N$, is computed analytically. Secondly, 10 million independent draws from the normal prior distribution for parameters $\omega$, $A$ and $B$ truncated to interval $(0; 1.8)$ are used to compute the probability: $\Pr\left[ |\text{eigenvalue}(A+B)|<1| 0\leq A,B\leq1.8 \right]$. Then, $p_{\Theta}$ for each model is computed by:
+%\begin{multline*}
+%\Pr\left[ \omega>0 \land A,B\geq0 \land |\text{eigenvalue}(A+B)|<1 \right] = \Pr\left[ \omega>0 \right] \cdot \\ \cdot \Pr\left[ |\text{eigenvalue}(A+B)|<1 | 0\leq A,B \leq 1.8 \right] \cdot \Pr\left[0\leq A,B \leq 1.8 \right]
+%\end{multline*}
+%The conditioning on other elements is suspended in the above formula. The truncation of the normal distribution to interval (0; 1.8) used in the simulations is determined such that the probability that the stationarity conditions hold outside of the interval is numerically zero, which was checked in auxiliary simulations.
+
+The marginal data densities can be further used for hypotheses assessment \citep[see e.g.][]{Kass1995}. \cite{Wozniak2012} presents their use for the assessment of the hypotheses of second-order Granger causality for the ECCC-GARCH models.
+
+
+%\paragraph{Hypothesis testing}
+%An alternative approach to hypothesis testing was presented in \cite{Wozniak2011jm}. The exposition in this section is highly based on this paper. Consider the following set of hypotheses. The null hypothesis, $\mathcal{H}_0$, states that the $l \times 1$ vector of possibly nonlinear functions of parameters, $\mathbf{R}(\theta)$, is set to a vector of zeros. The set of hypotheses is represented by:
+%\begin{align*}
+%  \mathcal{H}_0:& \quad\mathbf{R}(\theta) = 0, \\
+%  \mathcal{H}_1:& \quad\mathbf{R}(\theta) \neq 0.
+%\end{align*}
+%The formulation of the hypotheses is general and encompasses second-order noncausality and other hypotheses resulting in either linear or non-linear restrictions. 
+%
+%Given the posterior distribution of  the  parameters in the Bayesian approach, the posterior distribution of the function $\mathbf{R}(\theta)$ is available, $p(\mathbf{R}(\theta)|\mathbf{y})$. Let $\{ \theta^{(i)}) \}_{i=1}^{S_1}$ be a sample of $S_1$ draws from the posterior distribution $p(\theta | \mathbf{y})$. Then, $\{\mathbf{R}(\theta^{(i)})\}_{i=1}^{S_1}$ appears a sample drawn from the posterior distribution $p(\mathbf{R}(\theta)|\mathbf{y})$. Define a scalar function $\kappa: \mathbb{R}^l \rightarrow \mathbb{R}^{+}$ by:
+%\begin{equation}\label{eq:kappa1}
+%  \kappa(\mathbf{R}) = \bigl[\mathbf{R} - E[\mathbf{R}(\theta)|\mathbf{y}]\bigr]' V[\mathbf{R}(\theta)|\mathbf{y}]^{-1} \bigl[\mathbf{R} - E[\mathbf{R}(\theta)|\mathbf{y}]\bigr],
+%\end{equation}
+%where $\mathbf{R}$ is the argument of the function. In order to distinguish the argument of the function $\mathbf{R} = \mathbf{R}(\theta)$, the simplified notation is used, neglecting the dependence on the vector of parameters. In place of the expected value and the covariance matrix of the vector of restrictions, $E[\mathbf{R}(\theta)|\mathbf{y}]$ and $V[\mathbf{R}(\theta)|\mathbf{y}]$,  one should use their estimators. 
+%
+%The function $\kappa$ is a positive semidefinite quadratic form of a real-valued vector. It gives a measure of the deviation of the value of the vector of restrictions from its posterior mean, $\mathbf{R} - E[\mathbf{R}(\theta)|\mathbf{y}]$, rescaled by the positive definite posterior covariance matrix, $V[\mathbf{R}(\theta)|\mathbf{y}]$. Notice that the positive definite covariance matrix is a characteristic of the posterior distribution and, by construction, cannot be singular, as long as the restrictions are linearly independent. Notice that the function $\kappa$ is not a test statistic, but a scalar function that summarizes multiple restrictions on  the parameters of the model. 
+%
+%In the general setting of this study, in which the VAR-GARCH models with Student's $t$ likelihood function are analyzed, the posterior distribution of the parameters of neither the VAR nor GARCH parts are in the form of known distributions \citep[see][]{Bauwens1998}. Therefore, the exact form of the distribution of $\kappa(\mathbf{R})$ is not known either. It is known up to a normalizing constant. Luckily, using the Monte Carlo Markov Chain methods, the posterior distributions of the parameters of the model, $\theta$, can be simulated, and those of the restrictions imposed on them, $\mathbf{R}$, as well as of the function $\kappa(\mathbf{R})$, easily computed. The posterior distribution of the function $\kappa$ is used in order to evaluate the hypothesis of noncausality. 
+%
+%Let $\kappa{(\mathbf{0})}$ be the value of function $\kappa$, evaluated at the vector of zeros, representing the null hypothesis. Then, a negligible part of the posterior probability mass of $\kappa{(\mathbf{R})}$ attached to the values greater than $\kappa{(\mathbf{0})}$ is an argument against the null hypothesis. Therefore, the credibility of the null hypothesis can be assessed by computing the posterior probability of the condition $\kappa(\mathbf{R}) > \kappa(\mathbf{0})$:
+%\begin{equation}\label{eq:posteriorpr}
+%  p_0 = Pr\left( \kappa(\mathbf{R}) > \kappa(\mathbf{0}) | \mathbf{y} \right) =  \int_{\kappa(\mathbf{0})}^{\infty} p(\kappa(\mathbf{R}) | \mathbf{y}) d\kappa(\mathbf{R}).
+%\end{equation}
+%The probability, $p_0$, is simply estimated by the fraction of the draws from the posterior distribution of $\kappa(\mathbf{R})$, for which the inequality $ \kappa(\mathbf{R}) > \kappa(\mathbf{0})$ holds:
+%\begin{equation}\label{eq:posteriorprest}
+%  \hat{p}_0 = \frac{\#\{ \kappa(\mathbf{R^{(i)}}) > \kappa(\mathbf{0}) \}}{ S_2}.
+%\end{equation}
+%The probability, $\hat{p}_0$, should be compared to a tail probability, $\pi_0$, and $1-\pi_0$ is a measure of the reliability of a result. The values for probability $\pi_0$ that one might consider are e.g. 0.05 or 0.1. In Figure an illustration of the testing procedure for two of the hypotheses investigated in Section, when one gives rejection of the null hypothesis and the other does not, is presented.
+
+
+
+
+
+
+
+
+
+
+\bibliographystyle{model5-names}
+\bibliography{bibliography} 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+%\section*{R functions}\label{sec:code}
+%
+%\noindent File \texttt{BayesianECCCGARCH.R} includes, amongst others, two utility functions that are described below.
+
+\small
+\bigskip
+\begin{center}
+\rule{15cm}{.1pt}\\
+
+\bigskip\begin{tabular}{p{2cm} l}
+\texttt{MH} & \textit{Bayesian estimation of ECCC-GARCH models} 
+\end{tabular}
+
+\smallskip
+\rule{15cm}{.1pt}
+\end{center}
+
+\bigskip\noindent\textbf{Description}
+\begin{quote}
+A random-walk Metropolis-Hasting sampler for VAR($p$) ECCC-GARCH(1,1) models.
+\end{quote}
+
+
+\bigskip\noindent\textbf{Usage}
+\begin{quote}
+\begin{verbatim}
+MH(S, data, par0, sigma0, C=1, restrictions=NULL, lag=1,
+            hyper.parameters = c(100,0.1), print.iterations=100)
+\end{verbatim}
+\end{quote}
+
+\bigskip\noindent\textbf{Arguments}
+\begin{quote}
+\begin{tabular}{p{3cm}p{10cm}}
+\texttt{S} & An integer specifying the number of iterations of the MH algorithm. \\
+\texttt{data}& A $T\times N$ matrix of data.\\
+\texttt{par0}& A $K$ vector of admissible starting values for the parameters. The ordering of parameters in this vector is specified in equation (\ref{eq:theta}).\\
+\texttt{sigma0}& A $K\times K$ symmetric positive-definite matrix determining the scale matrix of the candidate density. This matrix corresponds to matrix $\Omega_q$.\\
+\texttt{C}& A positive scalar determining the scale matrix of the candidate density. This matrix corresponds to a scaling constant $c$.\\
+\texttt{restrictions}& A $K$ vector determining zero restrictions to be imposed on the parameters. Its elements equal to 1 set the zero restriction on the corresponding parameter in vector $\theta$, whereas elements equal to 0 leave the corresponding parameters unrestricted. If equal to \texttt{NULL} then the unrestricted model is estimated.\\
+\texttt{lag}& A positive integer specifying the lag order, $p$ of the VAR model.\\
+\texttt{hyper.parameters}& A vector with positive elements $(\lambda_1,\lambda_2)$. \\
+\texttt{print.iterations}& An integer specifying how often should the algorithm's iteration count be displayed.
+\end{tabular}
+\end{quote}
+
+\bigskip\noindent\textbf{Value}
+\begin{quote}
+A list with the following arguments:
+
+\smallskip\begin{tabular}{p{3cm}p{10cm}}
+\texttt{KERNEL} & A $S$-vector containing the values of the kernel of the posterior distribution evaluated at each draw.\\
+\texttt{LIKELI} & A $S$-vector containing the values of the likelihood function evaluated at each draw.\\
+\texttt{PRIOR} & A $S$-vector containing the values of the prior distribution evaluated at each draw.\\
+\texttt{rejections} & A $S$-vector containing the numbers of draws sampled from outside of the parameters space and rejected at each iteration.\\
+\texttt{THETA} & A $S\times K$ matrix containing the MCMC draws.\\
+\texttt{time} & The total time, in hours, of executing the simulation. \\
+\end{tabular}
+\end{quote}
+
+
+\bigskip\noindent\textbf{Author}
+\begin{quote}
+Tomasz Wo\'zniak
+\end{quote}
+
+
+\bigskip\noindent\textbf{References}
+\begin{quote}
+\noindent Wo\'zniak, Tomasz (2015) Testing Causality Between Two Vectors in Multivariate GARCH Models, \emph{International Journal of Forecasting}, \textbf{31}(3), pp. 876--894..
+
+\smallskip\noindent Wo\'zniak, Tomasz (in press) Granger-Causal Analysis of GARCH Models: a Bayesian Approach, \emph{Econometric Reviews}.
+
+\end{quote}
+
+
+
+
+
+
+
+\bigskip
+\begin{center}
+\rule{15cm}{.1pt}\\
+
+\bigskip\begin{tabular}{p{2cm} l}
+\texttt{ml.cj2001} & \textit{Marginal Data Density for ECCC-GARCH models} 
+\end{tabular}
+
+\smallskip
+\rule{15cm}{.1pt}
+\end{center}
+
+\bigskip\noindent\textbf{Description}
+\begin{quote}
+Estimates the marginal data density for VAR($p$) ECCC-GARCH(1,1) models with the estimator of \cite{Chib2001}.
+\end{quote}
+
+
+\bigskip\noindent\textbf{Usage}
+\begin{quote}
+\begin{verbatim}
+ml.cj2001(mcmc, kernel, rej=NULL, data, restrictions=NULL, sigma0, lag=1)
+\end{verbatim}
+\end{quote}
+
+\bigskip\noindent\textbf{Arguments}
+\begin{quote}
+\begin{tabular}{p{3cm}p{10cm}}
+\texttt{mcmc} & A $S\times K$ matrix containing the MCMC draws. It corresponds to object \texttt{THETA} from the output of function \texttt{MH}. \\
+\texttt{kernel} & A $S$-vector containing the values of the kernel of the posterior distribution evaluated at each draw. It corresponds to object \texttt{KERNEL} from the output of function \texttt{MH}. \\
+\texttt{rej} & A $S$-vector containing the numbers of draws sampled from outside of the parameters space and rejected at each iteration. It corresponds to object \texttt{rejections} from the output of function \texttt{MH}. If equal to \texttt{NULL} then the rejections are not taken into account in the estimation.\\
+\texttt{data} & A $T\times N$ matrix of data. \\
+\texttt{restrictions} & A $K$ vector determining zero restrictions to be imposed on the parameters. Its elements equal to 1 set the zero restriction on the corresponding parameter in vector $\theta$, whereas elements equal to 0 leave the corresponding parameters unrestricted. If equal to \texttt{NULL} then the MDD for the unrestricted model is estimated.\\
+\texttt{sigma0} & A $K\times K$ symmetric positive-definite matrix determining the scale matrix of the candidate density. This matrix corresponds to matrix $\Omega_q$. \\
+\texttt{den} & A positive integer specifying the number of additional draws required for the computations. It corresponds to $J$ from equation (\ref{eq:cjpo}).  \\
+\texttt{lag} &  A positive integer specifying the lag order, $p$ of the VAR model.
+\end{tabular}
+\end{quote}
+
+
+
+
+
+\bigskip\noindent\textbf{Value}
+\begin{quote}
+A scalar with the estimate of the natural logarithm of the marginal data density.
+\end{quote}
+
+\bigskip\noindent\textbf{Author}
+\begin{quote}
+Tomasz Wo\'zniak
+\end{quote}
+
+
+\bigskip\noindent\textbf{References}
+\begin{quote}
+
+\noindent Chib, S., \& Jeliazkov, I. (2001) Marginal Likelihood from the Metropolis-Hastings Output, \emph{Journal of the American Statistical Association}, \textbf{96}(453), 270– 281.
+
+\noindent Wo\'zniak, T. (2015) Testing Causality Between Two Vectors in Multivariate GARCH Models, \emph{International Journal of Forecasting}, \textbf{31}(3), pp. 876--894..
+
+\smallskip\noindent Wo\'zniak, T. (in press) Granger-Causal Analysis of GARCH Models: a Bayesian Approach, \emph{Econometric Reviews}.
+
+\end{quote}
+
+
+
+\end{document}
