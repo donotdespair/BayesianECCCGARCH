@@ -1,5 +1,5 @@
 # BayesianECCCGARCH
-## Bayesian Estimation and Inference for the ECCC-GARCH Model in R
+### Bayesian Estimation and Inference for the ECCC-GARCH Model in R
 
 by Tomasz Woźniak
 
@@ -7,7 +7,7 @@ by Tomasz Woźniak
 >
 > **Keywords.** R, Multivariate GARCH Models, Metropolis-Hastings Sampler, Marginal Data Density
 
-### Citations
+## Citations
 
 To refer to the codes in publications, please, cite one of the following papers:
 
@@ -15,7 +15,7 @@ To refer to the codes in publications, please, cite one of the following papers:
 
 > Woźniak, Tomasz (2018) Granger-Causal Analysis of GARCH Models: a Bayesian Approach, *Econometric Reviews*, 37(4), pp. 325-346, DOI: [10.1080/07474938.2015.1092839](http://doi.org/10.1080/07474938.2015.1092839).
 
-### Project contents
+## Project contents
 
 The project contains the following files:
 
