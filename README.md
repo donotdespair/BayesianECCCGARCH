@@ -9,7 +9,7 @@ by Tomasz Woźniak
 
 ## Citations
 
-To refer to the codes in publications, please, cite one of the following papers:
+To refer to the code in publications, please, cite one of the following papers:
 
 > Woźniak, Tomasz (2015) Testing Causality Between Two Vectors in Multivariate GARCH Models, *International Journal of Forecasting*, 31(3), pp. 876--894, DOI: [10.1016/j.ijforecast.2015.01.005](http://doi.org/10.1016/j.ijforecast.2015.01.005).
 
@@ -19,16 +19,16 @@ To refer to the codes in publications, please, cite one of the following papers:
 
 The project contains the following files:
 
-- [`BayesianECCCGARCH.pdf`](https://gitlab.com/tomaszwozniak/BayesianECCCGARCH/-/blob/master/BayesianECCCGARCH.pdf) a vignette presenting the model and R codes
+- [`BayesianECCCGARCH.pdf`](https://gitlab.com/tomaszwozniak/BayesianECCCGARCH/-/blob/master/BayesianECCCGARCH.pdf) a vignette presenting the model and R code
 - `BayesianECCCGARCH.R` containing the utility functions
 - `BayesianECCCGARCH-example.R` presenting an application of the functions in a simple example
 - `priorConstant-M0-shrinkage.R` reproduction of the results from the paper for one of the models
 - `priorConstant-M1-shrinkage.R` reproduction of the results from the paper for another model
 - `dataECB.RData` data used in the paper
 
-## Downloading the codes
+## Downloading the code
 
-To download the codes simply click on the download icon on the top of this page
+To download the code simply click on the download icon on the top of this page
 
 ![](gl-download.png)
 
